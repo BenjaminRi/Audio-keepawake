@@ -1,0 +1,62 @@
+Pulseaudio is per-user! ( https://askubuntu.com/questions/1379890/how-to-play-a-sound-from-a-systemd-service-on-ubuntu )
+
+```ini
+Environment="XDG_RUNTIME_DIR=/run/user/1000"
+```
+
+If you run a system-wide systemd service, you need to hardcode the user:
+
+```ini
+[Service]
+# TODO: How to select current user ID without hardcoding it?
+User=foo
+Group=foo
+Environment="XDG_RUNTIME_DIR=/run/user/1000"
+Environment="SDL_AUDIODRIVER=pipewire"
+```
+
+If we do not set current user like this:
+
+```
+User=foo
+```
+
+the following happens:
+
+```
+# audio-keepawake[40548]: XDG_RUNTIME_DIR (/run/user/1000) is not owned by us (uid 0), but by uid 1000! (This could e.g. happen if you try to connect to a non-root PulseAudio as a root user, over the native protocol. Don't do that.)
+```
+
+-> Better install it per user!
+
+--------------
+
+# Did not exist on Ubuntu 22.04 LTS
+ls $HOME/.local/share/systemd/
+# Did exist
+ls $HOME/.local/share/
+
+foo@mainpc:~$ systemctl --user status audio-keepawake
+● audio-keepawake.service - Keep audio devices awake by playing inaudible sounds
+     Loaded: loaded (/home/foo/.local/share/systemd/user/audio-keepawake.service; enabled; vendor preset: enabled)
+     Active: active (running) since Wed 2023-03-29 02:41:09 CEST; 1h 46min ago
+   Main PID: 2011 (audio-keepawake)
+      Tasks: 4 (limit: 38268)
+     Memory: 60.9M
+        CPU: 20min 1.904s
+     CGroup: /user.slice/user-1000.slice/user@1000.service/app.slice/audio-keepawake.service
+             └─2011 /home/foo/Projects/audio-keepawake/build/audio-keepawake
+
+Mär 29 02:41:11 mainpc audio-keepawake[2011]: INFO: Audio device added: ID: 0, Cap: 0, Name: "Dummy Output"
+Mär 29 02:41:11 mainpc audio-keepawake[2011]: INFO: Audio device added: ID: 1, Cap: 0, Name: "Steinberg UR22mkII  Analog Stereo"
+Mär 29 02:41:11 mainpc audio-keepawake[2011]: INFO: Set timer for matching audio output device: "Steinberg UR22mkII  Analog Stereo"
+Mär 29 02:41:11 mainpc audio-keepawake[2011]: INFO: Mix_OpenAudio successfully opened "Steinberg UR22mkII  Analog Stereo"
+Mär 29 02:41:11 mainpc audio-keepawake[2011]: INFO: Mix_LoadWAV successful
+Mär 29 02:41:11 mainpc audio-keepawake[2011]: INFO: Playing initial sound 3 times, length 2000ms, config duration: 6000ms
+Mär 29 02:41:11 mainpc audio-keepawake[2011]: INFO: Audio device added: ID: 0, Cap: 1, Name: "Steinberg UR22mkII  Analog Stereo"
+Mär 29 02:41:11 mainpc audio-keepawake[2011]: INFO: Audio device added: ID: 1, Cap: 1, Name: "HD Pro Webcam C920 Analog Stereo"
+Mär 29 02:41:11 mainpc audio-keepawake[2011]: INFO: Audio device added: ID: 2, Cap: 0, Name: "Starship/Matisse HD Audio Controller Digital Stereo (IEC958)"
+Mär 29 02:41:11 mainpc audio-keepawake[2011]: INFO: Audio device added: ID: 2, Cap: 0, Name: "Starship/Matisse HD Audio Controller Digital Stereo (IEC958)"
+foo@mainpc:~$ 
+
+SDL Event queue seems to be hanging indefinitely, implemented workaround by polling slowly.

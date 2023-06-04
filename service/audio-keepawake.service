@@ -1,0 +1,13 @@
+[Unit]
+Description=Keep audio devices awake by playing inaudible sounds
+Wants=sound.target
+After=sound.target
+
+[Service]
+WorkingDirectory=%h/.local/share/audio-keepawake/sound/
+ExecStart=%h/.local/bin/audio-keepawake
+Type=exec
+Restart=always
+
+[Install]
+WantedBy=default.target
