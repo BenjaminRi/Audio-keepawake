@@ -1,0 +1,6 @@
+---
+IndentWidth: 4
+ColumnLimit: 128
+IndentCaseLabels: true
+PointerAlignment: Left
+...
