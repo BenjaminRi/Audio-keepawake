@@ -10,10 +10,6 @@ set -e
 mkdir -p $HOME/.local/bin
 cp -f ./build/audio-keepawake $HOME/.local/bin
 
-# Install sounds
-mkdir -p $HOME/.local/share/audio-keepawake/
-cp -r -f ./sound $HOME/.local/share/audio-keepawake/
-
 # Install service
 #----------------
 

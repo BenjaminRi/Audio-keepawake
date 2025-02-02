@@ -4,7 +4,7 @@ Wants=sound.target
 After=sound.target
 
 [Service]
-WorkingDirectory=%h/.local/share/audio-keepawake/sound/
+WorkingDirectory=%h/.local/bin/
 ExecStart=%h/.local/bin/audio-keepawake
 Type=exec
 Restart=always
